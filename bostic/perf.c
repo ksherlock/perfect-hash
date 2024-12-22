@@ -1,5 +1,8 @@
+/* cc -std=c89 perf.c -Wno-return-type -Wno-parentheses -o perf */
+
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 /*
  * Find a "perfect" hashing function.
@@ -74,7 +77,7 @@ char	**argv;
 	pcode();
 }
 
-static			/* change a character value */
+			/* change a character value */
 change(arg)		/* try least-used characters first */
 KEY	*arg;
 {
@@ -120,7 +123,7 @@ KEY	*arg;
 	cur = b_first - 1;			/* reset current value */
 }
 
-static			/* find out how character value change will effect */
+			/* find out how character value change will effect */
 fore(val)		/* already successfully hashed items */
 short	val;
 {
@@ -162,19 +165,19 @@ loop:		if (debug) printf("%d ",hit);
 	return(YES);
 }
 
-static
+
 keyread()		/* get key words */
 {
 	register short	*S1,
 			*S2;
 	register KEY	*K;
 	char	name[MAXKEY],
-		*gets(), *malloc(), *strcpy();
+		*gets(), *strcpy();
 
 	while (gets(name)) if (*name) ++nkeys;
 	if (!nkeys) die("no key words supplied.");
 	rewind(stdin);
-	if (!(begkey = (KEY *)malloc((unsigned)(sizeof(KEY) * nkeys)))) die("malloc failure.");
+	if (!(begkey = (KEY *)calloc(sizeof(KEY), nkeys))) die("malloc failure.");
 	for (K = begkey;gets(name);) {
 		if (!*name) continue;
 		if (!(K->word = malloc((unsigned)((K->len = strlen(name)) + 1)))) die("malloc failure.");
@@ -193,7 +196,7 @@ keyread()		/* get key words */
 	split = nkeys * RANGE;
 }
 
-static
+
 hash(K)			/* actually hash a string */
 register KEY	*K;
 {
@@ -202,7 +205,7 @@ register KEY	*K;
 	for (K->hval = K->len,S = K->set;*S;++S) K->hval += cval[*S];
 }
 
-static
+
 pvals()		/* print out hashed values */
 {
 	register KEY	*K1,
@@ -233,7 +236,7 @@ pvals()		/* print out hashed values */
 	if (nlink) printf("%s: %d linked items.\n",myname,nlink);
 }
 
-static
+
 parse(nargc,nargv)		/* deal with arguments */
 int	nargc;			/* set debug flag */
 char	**nargv;		/* open keyword file for reading */
@@ -262,10 +265,14 @@ char	**nargv;		/* open keyword file for reading */
 				fprintf(stderr,"usage: %s [-d] [-k keys] file\n",myname);
 				exit(1);
 		}
+        if (optind >= nargc) {
+		fprintf(stderr,"usage: %s [-d] [-k keys] file\n",myname);
+		exit(1);
+        }
 	if (!*nargv[optind] || !freopen(nargv[optind],"r",stdin)) die("unable to read key word file.");
 }
 
-static
+
 die(msg)		/* die with some last words */
 register char	*msg;
 {
@@ -273,7 +280,7 @@ register char	*msg;
 	exit(1);
 }
 
-static
+
 setlink()			/* get rid of unhashables */
 {				/* if keys are identical (in any order) */
 	register short	*S1,	/* and length is the same, it's a link */
@@ -313,7 +320,7 @@ setuse()		/* initialize how many times a character is used */
 		if (use[cnt]) cval[cnt] = rand() % split;
 }
 
-static
+
 pcode()		/* print out the code to hash */
 {
 	register short	*S1,
@@ -346,7 +353,7 @@ pcode()		/* print out the code to hash */
 	cnt = *--S1;
 	printf("\t\t\thval += cval[(int)str[%d]];\n",*S1 - 1);
 	for (--S1;S1 >= pk;--S1)
-		if (*S1 == -1) printf("\t\t\thval += cval[(int)str[len - 1]];\n",*S1);
+		if (*S1 == -1) printf("\t\t\thval += cval[(int)str[len - 1]];\n");
 		else {
 			while (--cnt > *S1) printf("\t\tcase %d:\n",cnt);
 			printf("\t\tcase %d:\n\t\t\thval += cval[(int)str[%d]];\n",*S1,*S1 - 1);
