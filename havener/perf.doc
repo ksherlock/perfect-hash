@@ -1,0 +1,329 @@
+
+
+
+
+
+
+          PERFECT HASHING - A PROGRAM TO FIND THE HASH FUNCTION
+
+          Charlie Havener GenRad Inc. Component Test Division Bolton Mass.
+
+
+
+                        This technical note describes an implementation  of
+          a  pragmatic  algorithm  for finding perfect or semi-perfect hash
+          functions for lists of keywords. The resulting hash function  can
+          be  used  to  speed  up lexical analyzers used in translators and
+          compilers. The algorithm was described by R.J.  Cichelli  in  The
+          January  1980  issue of Communications of the ACM under the title
+          "Minimal Perfect Hash Functions made Simple." The article did not
+          include a computer language description of the algorithm and some
+          important implementation details were unclear. It is assumed that
+          the  user will know what to do with the output of this program. A
+          marginally commented example of part of  a  lexical  analyzer  is
+          included  in  Appendix B.  Another reference for those wishing to
+          pursue the topic further is "More On Minimal Perfect Hash tables"
+          by  Curtis  Cook  and  R.  Oldehoeft, a Colorado State University
+          Technical Report.
+
+
+                        The program takes a list of keywords and sorts them
+          in  such  a  way that the search time for a hash function will be
+          reasonable.  Once sorted a recursive trial  and  error  procedure
+          hunts  for  a  hash  function  satisfying user supplied bounds of
+          table size  and  associated  character  value  limits.  The  hash
+          function is
+
+          hash = assoc value of first character + keyword length
+                                           + assoc value pf last character
+
+          It is critically important to  select  a  good  ordering  of  the
+          keywords  before searching begins. I ran up 100 hours of VAX time
+          searching for a hash function with an unordered  list,  and  gave
+          up.  Once  the  sort  heuristics  were debugged it found the hash
+          function in minutes. Typically  it  will  find  the  function  in
+          minutes or you may as well give up. A status reporting feature is
+          built into the program on the UNIX system that  lets  you  follow
+          the  progress  of  the  search depth.  If it has trouble, you can
+          tell just which word it can't  get  past,  and  take  appropriate
+          action. If it has trouble you can attempt to alter it's choice of
+          pre-ordering by moving troublesome words  to  the  front  of  the
+          list.  In          the sort heuristics makes the search longer.  There  is  also  no
+          guarentee that a hash function can be found. The program does the
+          obvious precheck that no two keywords have  the  same  first  and
+          last  letter  and length in common ( e.g. BAK KAB ). Nonetheless,
+          as pointed out by Jaeschke  and  Osterberg  in  an  overly  harsh
+          criticism there are many pathalogical sets of keywords that fail.
+          ( On Cichelli's minimal perfect hash functions method. Comm.  ACM
+          Dec  1980  pp  728-729  ) The algorithm also only works for up to
+          about 40 keywords due to the limited range of numbers the formula
+
+
+                                        - 1 -
+
+
+
+
+
+
+
+
+
+          can  generate.  If  you have, say 80 keywords, just make two hash
+          tables and look in each  one.  Here  are  some  examples  of  the
+          programs output :
+
+
+          PERFECT HASH FUNCTION FINDER , CDH Ver. 2.9
+
+          Start time = Thu Mar 18 15:50:22 1982
+          Number of keywords = 41
+          Number of distinct letters = 21
+          The associated char value limit is 21
+          The table size limit is 42
+           The search ordering is
+          EE RANGE ESR EXCLUDE RP PAUSE RDC CP
+          POP SENSE CS PASS CALL LS REG GP
+          GDC LABEL INTEGRATE IDC D GUARD RATIO OR
+          CONTACT TO MEMBER PERFORM RETURN NOT VDC FAIL
+          IF DISPLAY DELAY LOW AND Q FREQ BIAS
+          HIGH
+
+          SUCCESS ! Associated Char Values Follow:
+
+          A  18,B  19,C  7,D  17,E  0,F  20,G  19,H  0,I  18,
+          L  8,M  20,N  2,O  18,P  4,Q  18,R  0,S  7,T  19,V  4,
+          W  7,Y  12,
+
+          Hash min =2, max =42, spread = 41
+          EE 2,ESR 3,HIGH 4,RANGE 5,RP 6,EXCLUDE 7,RETURN 8,PAUSE 9,
+          RDC 10,POP 11,SENSE 12,CP 13,VDC 14,PASS 15,CS 16,LS 17,
+          LOW 18,CALL 19,OR 20,LABEL 21,REG 22,RATIO 23,NOT 24,GP 25,
+          MEMBER 26,INTEGRATE 27,IDC 28,GDC 29,BIAS 30,PERFORM 31,FAIL 32,CONTACT 33,
+          DELAY 34,D 35,DISPLAY 36,Q 37,AND 38,TO 39,IF 40,GUARD 41,
+          FREQ 42,
+
+          Total search() invocations = 6984
+          Started Thu Mar 18 15:50:22 1982
+          Finished Thu Mar 18 15:50:48 1982
+
+
+          PERFECT HASH FUNCTION FINDER , CDH Ver. 2.9
+
+          Start time = Fri Feb 26 21:55:35 1982
+          Number of keywords = 39
+          Number of distinct letters = 19
+          The associated char value limit is 19
+          The table size limit is 41
+           The search ordering is
+          TEXT RESET TRUE REWRITE READLN EOLN SQRT SQR
+          SIN TRUNC CHR CHAR COS SUCC PUT EXP
+          PAGE READ ROUND DISPOSE PRED OUTPUT ORD INPUT
+          INTEGER GET MAXINT REAL LN WRITE NEW WRITELN
+          EOF FALSE ARCTAN ABS BOOLEAN PACK UNPACK
+
+          SUCCESS ! Associated Char Values Follow:
+
+
+                                        - 2 -
+
+
+
+
+
+
+
+
+
+
+          A  15,B  9,C  11,D  19,E  5,F  3,G  0,I  3,K  16,
+          L  13,M  1,N  19,O  0,P  18,R  0,S  15,T  0,U  17,
+          W  10,
+
+          Hash min =3, max =41, spread = 39
+          GET 3,TEXT 4,RESET 5,OUTPUT 6,MAXINT 7,INPUT 8,TRUE 9,INTEGER 10,
+          EOF 11,REWRITE 12,FALSE 13,CHR 14,CHAR 15,TRUNC 16,REAL 17,SQR 18,
+          SQRT 19,WRITE 20,PUT 21,ORD 22,READ 23,ROUND 24,READLN 25,EXP 26,
+          PAGE 27,EOLN 28,COS 29,SUCC 30,DISPOSE 31,NEW 32,ABS 33,LN 34,
+          BOOLEAN 35,WRITELN 36,SIN 37,PACK 38,UNPACK 39,ARCTAN 40,PRED 41,
+
+          Total search() invocations = 218463
+          Started Fri Feb 26 21:55:35 1982
+          Finished Fri Feb 26 21:57:39 1982
+
+
+          Usage: %perf < input
+
+          Options: -n             no presort of the input keyword list
+                   -t number      limits the max table size ( 100 default )
+                   -v number      limits the max associated char value
+                   -k number      takes only the first number keywords in
+                                  the input list
+                   -a number      specifies alarm time in seconds for status report.
+                                  Default is every 10 minutes to stderr.
+                   -number        1 thru 9 causes debug printouts
+
+          %perf -n -t 42 -v 15 < in.txt > perf.out
+
+          Usually the first time, just let everything default, second time
+          just use the t option to limit the table size to the first hash
+          value plus the number of keywords. The program will accept SIGTERM
+          signals for an update status report since it may take quite a while
+          to find the hash function values. The program status.c is a convenient
+          way to send signals to perfect.c every so many seconds.
+          Examples included are 2230.txt, keywords for a GenRad test system,
+          kwds.txt, something to do with PASCAL ( I think that is a computer
+          language used by students ), and lastly ckeywds.txt which is the
+          set of key words for C.
+
+
+                   An excerpt from a lexical analyzer program that uses the
+          perfect  hash function is shown in appendix A. It shows the way a
+          structure can be used as the perfect hash table.
+
+
+
+
+
+
+
+
+
+
+
+                                        - 3 -
+
+
+
+
+
+
+
+
+
+
+          Appendix B       Lexical Analyzer Data  Structure  using  Perfect
+          Hash Function
+
+
+          /* the following character associated values and the hash table
+          ordering were computed by the program perfect.c on the UNIX vax.
+          written by C.D. Havener
+          Note that COUNT TEXT and FAST are #defined in a standard header
+          somewhere to be int char and register respectively.
+          This is just a program fragment! The user must supply the
+          match function etc.
+          */
+          COUNT assocval[] = { 18, 19, 7, 17, 0, 20, 19, 0, 18,
+                                   0, 0, 8, 20, 2, 18, 4, 18, 0, 7, 19, 0, 4,
+                                   7, 0, 12, 0 };
+
+          COUNT *a = assocval - 'A';       /* speeds up hash calculation */
+          typedef struct keystuff {
+                   TEXT *keytxt;
+                   COUNT ktype;
+                   COUNT lexv;
+                   }KEYS,*KEYPTR;
+
+          KEYS table[] = {
+                           "EE",EE,64,
+                           "ESR",SIMPLREG,18,
+                           "HIGH",SIMPLREG,0,
+                           "RANGE",SIMPLREG,3,
+                           "RP",SIMPLREG,15,
+                           "EXCLUDE",EXCLUDE,27,
+                           "RETURN",SIMPLOP,35,
+                           "PAUSE",SIMPLOP,46,
+                           "RDC",SIMPLREG,9,
+                           "POP",POP,47,
+                           "SENSE",ARRAYREG,13,
+                           "CP",SIMPLREG,5,
+                           "VDC",SIMPLREG,14,
+                           "PASS",SIMPLOP,40,
+                           "CS",SIMPLREG,6,
+                           "LS",SIMPLREG,24,
+                           "LOW",SIMPLREG,21,
+                           "CALL",TRANSFEROP,37,
+                           "OR",OR,30,
+                           "LABEL",LABELKEY,39,
+                           "REG",ARRAYREG,67,
+                           "RATIO",SIMPLREG,19,
+                           "NOT",NOT,31,
+                           "GP",SIMPLREG,4,
+                           "MEMBER",MEMBER,26,
+                           "INTEGRATE",SIMPLREG,7,
+                           "IDC",SIMPLREG,23,
+                           "GDC",SIMPLREG,20,
+                           "BIAS",SIMPLREG,22,
+
+
+                                        - 4 -
+
+
+
+
+
+
+
+
+
+                           "PERFORM",TRANSFEROP,49,
+                           "FAIL",SIMPLOP,43,
+                           "CONTACT",SIMPLREG,11,
+                           "DELAY",SIMPLREG,48,
+                           "D",SIMPLREG,12,
+                           "DISPLAY",SIMPLREG,34,
+                           "Q",SIMPLREG,10,
+                           "AND",AND,29,
+                           "TO",TO,59,
+                           "IF",IF,32,
+                           "GUARD",SIMPLREG,17,
+                           "FREQ",SIMPLREG,16,
+                           };
+
+          /*---------------------------------------------------------*/
+          /* iskeywd - determines if next token is a keywd or not */
+          iskeywd(p)
+          FAST char *p;
+          {
+                   COUNT hash;
+                   FAST char *t;
+                   COUNT len = -2; /* since hash values start at 2 and table at 0 */
+
+                   t = p;
+                   while ( *t <= 'Z' && 'A' <= *t )
+                           {
+                           t++;
+                           len++;
+                           }
+          /*       hash = assocval[*p - 'A' ] + len + assocval[*(t-1) - 'A' ]; */
+                   hash = *(a + *p ) + len + *(a + *(t-1) );
+                   if ( 0 <= hash && hash <= 41 && match(p,table[hash].keytxt) )
+                           {
+                           type = table[hash].ktype;
+                           yylval = table[hash].lexv;
+                           return TRUE;
+                           }
+                   return(FALSE);
+          }
+          /*---------------------------------------------------------*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        - 5 -
+
+
+
