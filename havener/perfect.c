@@ -34,6 +34,9 @@
 #include <signal.h>
 #undef EOF
 #include <stdio.h> /* needed for the stream I/O */
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #endif
 #define STATIC static
 #define MAXKEYS 100
@@ -69,7 +72,6 @@ COUNT trys = 0;
 COUNT nletters = 0;
 COUNT kilotrys = 0;
 COUNT atime = 600;	/* default alarm status time 10 min. */
-TEXT *malloc();
 COUNT hash();
 BOOL aredefined();
 TEXT *klimit = 0;
@@ -138,8 +140,8 @@ main(argc,argv)
 			}
 #ifdef UNIX
 	start = time(0);
-	signal(SIGALRM,status);
-	signal(SIGTERM,status);	/* on kill -TERM pid , give status */
+	signal(SIGALRM,(sig_t)status);
+	signal(SIGTERM,(sig_t)status);	/* on kill -TERM pid , give status */
 	alarm(atime);	/* print status every N secs */
 #endif
 
@@ -150,7 +152,7 @@ main(argc,argv)
 		if ( u == 0 )
 			{
 			printf("\n malloc() failure ");
-			exit();
+			exit(1);
 			}
 		strcpy(u,name);
 		}
@@ -172,7 +174,7 @@ main(argc,argv)
 	if ( precheck() == FALSE )
 		{
 		printf("\nPerfect hash search terminated \n");
-		exit();
+		exit(1);
 		}
 
 
@@ -289,7 +291,7 @@ main(argc,argv)
 		{
 		printf("\nOOPS - call a Guru, the presort botched it");
 		prntorder();
-		exit();
+		exit(1);
 		}
 
 /* - - - - - - - BEGIN SEARCHING - - - - - - - - - - - - - - - */
@@ -553,7 +555,7 @@ BOOL search(k)
 					if ( search(k+1) )
 						return TRUE;
 					else
-						remove(m,sub2);
+						remove_hash(m,sub2);
 					}
 				}
 			return FALSE;
@@ -574,7 +576,7 @@ BOOL search(k)
 					if ( search(k+1) )
 						return TRUE;
 					else
-						remove(m,sub1);
+						remove_hash(m,sub1);
 					}
 				}
 			return FALSE;
@@ -598,7 +600,7 @@ BOOL search(k)
 					if ( search(k+1) )
 						return TRUE;
 					else
-						remove(m,subn);
+						remove_hash(m,subn);
 					}
 				}
 			else
@@ -618,7 +620,7 @@ BOOL search(k)
 /*-------------------------------------------------------*/
 /* remove - backup by deleting keywds hash value etc */
 
-VOID remove(m,subn)
+VOID remove_hash(m,subn)
 	FAST COUNT m;
 	FAST COUNT subn;
 {
@@ -650,15 +652,16 @@ BOOL defined(value)
 /* status - on signal this reports the current statistics */
 
 #ifdef UNIX
-VOID status()
+VOID status(int unused)
 {
+	(void)unused;
 	fprintf(stderr,
 		"\nSTATUS: nkeys=%d depth=%d k_now=%d, bigcount=%ld\n"
 					,nkeys,depth,k_now,bigcount);
-	fflush();
+	fflush(stderr);
 
-	signal(SIGTERM,status);
-	signal(SIGALRM,status);
+	signal(SIGTERM,(sig_t)status);
+	signal(SIGALRM,(sig_t)status);
 	alarm(atime);
 }
 #endif

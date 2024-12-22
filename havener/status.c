@@ -16,7 +16,7 @@ main()
 	printf("\nEnter reporting interval in seconds: ");
 	scanf("%d",&interval);
 	printf("\nWill send SIGTERM to process %d every %d seconds\n",pid,interval);
-	signal(SIGALRM,wakeup);
+	signal(SIGALRM,(sig_t)wakeup);
 	alarm(3);
 	for(;;)
 	{
@@ -24,9 +24,10 @@ main()
 	}
 }
 
-wakeup()
+wakeup(unused)
 {
+	(void)unused;
 	kill(pid,SIGTERM);
-	signal(SIGALRM,wakeup);
+	signal(SIGALRM,(sig_t)wakeup);
 	alarm(interval);
 }

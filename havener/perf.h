@@ -15,7 +15,7 @@ typedef char TEXT, TINY;
 typedef double DOUBLE;
 typedef int ARGINT, BOOL, VOID;
 typedef long LONG;
-typedef short COUNT, FILE;
+typedef int COUNT;
 typedef unsigned short BITS;
 typedef unsigned BYTES;
 typedef unsigned char UTINY;
